@@ -1,0 +1,20 @@
+{
+  "name": "organized-ai-marketplace",
+  "version": "1.0.0",
+  "description": "organized-ai-marketplace - Built with Organized Codebase Template",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo 'Add your development server command here'",
+    "build": "echo 'Add your build command here'",
+    "test": "echo 'Add your test command here'",
+    "start": "echo 'Add your start command here'",
+    "agent:setup": "node scripts/setup-agent.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.1"
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

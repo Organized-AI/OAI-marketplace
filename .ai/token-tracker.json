@@ -1,0 +1,63 @@
+{
+  "project_name": "[Your Project Name]",
+  "start_date": "YYYY-MM-DD",
+  "weekly_budgets": {
+    "opus": 500000,
+    "sonnet": 2000000,
+    "haiku": 5000000
+  },
+  "pricing": {
+    "opus": {
+      "input": 0.000015,
+      "output": 0.000075,
+      "note": "Use for: Critical architecture, security reviews, complex problem-solving"
+    },
+    "sonnet": {
+      "input": 0.000003,
+      "output": 0.000015,
+      "note": "Use for: Standard development, feature implementation, most work (80%)"
+    },
+    "haiku": {
+      "input": 5e-7,
+      "output": 0.0000025,
+      "note": "Use for: Routine tasks, documentation, simple refactoring"
+    }
+  },
+  "thresholds": {
+    "warning": 0.75,
+    "critical": 0.9,
+    "emergency": 0.95
+  },
+  "current_week": 1,
+  "sessions": [],
+  "usage_notes": [
+    "🎯 TOKEN BUDGET STRATEGY:",
+    "",
+    "Reserve Opus for HIGH-VALUE decisions:",
+    "  - Initial architecture planning (allocate 20-30k tokens)",
+    "  - Security audits and reviews",
+    "  - Complex algorithmic problems",
+    "  - Critical design decisions",
+    "",
+    "Use Sonnet for IMPLEMENTATION (80% of work):",
+    "  - Feature development",
+    "  - API and UI development",
+    "  - Code refactoring",
+    "  - Test writing",
+    "",
+    "Use Haiku for ROUTINE tasks:",
+    "  - Documentation",
+    "  - Simple code formatting",
+    "  - Boilerplate generation",
+    "",
+    "⚠️  PLANNING SESSION ALLOCATION:",
+    "  - Initial planning with Sonnet: 15-20k tokens",
+    "  - Final review with Opus: 5-10k tokens",
+    "  - This preserves Opus budget for implementation phase!",
+    "",
+    "📊 TRACK USAGE:",
+    "  - Run scripts/token-report.sh for weekly summary",
+    "  - Review .ai/reports/weekly/ for trends",
+    "  - Adjust allocation based on actual patterns"
+  ]
+}

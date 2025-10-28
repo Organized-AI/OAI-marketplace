@@ -1,0 +1,133 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Organized Codebase//Claude Session Scheduler//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Claude Code Sessions
+X-WR-TIMEZONE:UTC
+X-WR-CALDESC:Scheduled Claude Code development sessions with token budgets
+
+BEGIN:VEVENT
+DTSTART:20241007T140000Z
+DTEND:20241007T170000Z
+DTSTAMP:20241007T120000Z
+UID:session-001@organized-codebase
+SUMMARY:Claude Code: [Your Project Name] - Planning Session
+DESCRIPTION:Project: [Your Project Name]\n
+ Session Type: Planning\n
+ Framework: PM-Meta / BMAD METHOD / Hybrid\n
+ \n
+ TOKEN BUDGET:\n
+ Total: 50,000 tokens\n
+ - Sonnet 4.5: 40,000 tokens (planning, drafting)\n
+ - Opus 4: 10,000 tokens (critical review only)\n
+ \n
+ GOALS:\n
+ 1. Complete project brief and requirements\n
+ 2. Draft initial architecture\n
+ 3. Create implementation roadmap\n
+ 4. Set up token tracking system\n
+ \n
+ SUCCESS CRITERIA:\n
+ - All planning documents drafted\n
+ - Architecture validated with Opus\n
+ - Token budget not exceeded\n
+ - Next session scheduled\n
+ \n
+ DELIVERABLES:\n
+ - PLANNING/01-project-brief.md (completed)\n
+ - PLANNING/02-requirements.md (completed)\n
+ - PLANNING/03-architecture.md (completed)\n
+ - PLANNING/05-implementation-roadmap.md (completed)\n
+ - .ai/token-tracker.json (initialized with actual usage)\n
+ \n
+ NOTES:\n
+ - Use Sonnet for drafting (saves Opus budget!)\n
+ - Reserve Opus for final architecture review\n
+ - Track actual usage vs estimate\n
+ - Document any budget variances
+LOCATION:DevContainer / Claude Code
+STATUS:CONFIRMED
+SEQUENCE:0
+X-CLAUDE-PROJECT:[Your Project Name]
+X-CLAUDE-SESSION-TYPE:planning
+X-CLAUDE-FRAMEWORK:pm-meta
+X-CLAUDE-TOKEN-BUDGET-TOTAL:50000
+X-CLAUDE-TOKEN-BUDGET-OPUS:10000
+X-CLAUDE-TOKEN-BUDGET-SONNET:40000
+X-CLAUDE-TOKEN-BUDGET-HAIKU:0
+X-CLAUDE-PRIMARY-MODEL:sonnet-4.5
+X-CLAUDE-REVIEW-MODEL:opus-4
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Claude Code Session Starting in 15 minutes\nBudget: 50k tokens (Sonnet + Opus)\nCheck .ai/token-tracker.json before starting!
+TRIGGER:-PT15M
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Session ending in 30 minutes\nReview token usage and prepare session summary
+TRIGGER:-PT30M
+END:VALARM
+END:VEVENT
+
+BEGIN:VEVENT
+DTSTART:20241008T140000Z
+DTEND:20241008T173000Z
+DTSTAMP:20241007T120000Z
+UID:session-002@organized-codebase
+SUMMARY:Claude Code: [Your Project Name] - Implementation Session
+DESCRIPTION:Project: [Your Project Name]\n
+ Session Type: Implementation\n
+ Framework: PM-Meta\n
+ \n
+ TOKEN BUDGET:\n
+ Total: 100,000 tokens\n
+ - Sonnet 4.5: 85,000 tokens (feature development)\n
+ - Opus 4: 10,000 tokens (security review)\n
+ - Haiku 3.5: 5,000 tokens (documentation)\n
+ \n
+ GOALS:\n
+ 1. Implement core feature #1\n
+ 2. Write comprehensive tests\n
+ 3. Security review with Opus\n
+ 4. Update documentation\n
+ \n
+ SUCCESS CRITERIA:\n
+ - Feature fully implemented\n
+ - Tests passing (>80% coverage)\n
+ - Security approved\n
+ - Documentation updated\n
+ \n
+ DELIVERABLES:\n
+ - Feature code (src/)\n
+ - Tests (tests/)\n
+ - Security review notes\n
+ - Updated ARCHITECTURE.md\n
+ - Session summary report\n
+ \n
+ NOTES:\n
+ - Focus on Sonnet for implementation\n
+ - Use Opus only for security review\n
+ - Document any architecture changes\n
+ - Track actual vs estimated tokens
+LOCATION:DevContainer / Claude Code
+STATUS:CONFIRMED
+SEQUENCE:0
+X-CLAUDE-PROJECT:[Your Project Name]
+X-CLAUDE-SESSION-TYPE:implementation
+X-CLAUDE-FRAMEWORK:pm-meta
+X-CLAUDE-TOKEN-BUDGET-TOTAL:100000
+X-CLAUDE-TOKEN-BUDGET-OPUS:10000
+X-CLAUDE-TOKEN-BUDGET-SONNET:85000
+X-CLAUDE-TOKEN-BUDGET-HAIKU:5000
+X-CLAUDE-PRIMARY-MODEL:sonnet-4.5
+X-CLAUDE-REVIEW-MODEL:opus-4
+X-CLAUDE-DOCS-MODEL:haiku-3.5
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Claude Code Session Starting in 15 minutes\nBudget: 100k tokens\nPrimary: Sonnet 4.5\nReview budget before starting!
+TRIGGER:-PT15M
+END:VALARM
+END:VEVENT
+
+END:VCALENDAR
