@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organized AI Marketplace - AI Agents, Commands & Templates</title>
+    <meta name="description" content="Discover and install AI agents, custom commands, settings, hooks, and templates for Claude Code and other AI coding tools.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles-relationships.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="ascii-logo">
+                <pre>
+   ____                        _              _      _    ___
+  / __ \  _ __  __ _  __ _  _ (_) ____  ___  __| |    / \  |_ _|
+ / / _` || '__|/ _` |/ _` || || ||_  / / _ \/ _` |   / _ \  | |
+| | (_| || |  | (_| | (_| || || | / / |  __/ (_| |  / ___ \ | |
+ \ \__,_||_|   \__, |\__,_||_||_|/___| \___|\__,_| /_/   \_\___|
+  \____/       |___/
+                </pre>
+            </div>
+            <nav class="nav">
+                <a href="#" class="nav-link">Blog</a>
+                <a href="#" class="nav-link">Discord</a>
+                <a href="https://github.com/Organized-AI/OAI-marketplace" class="nav-link" target="_blank">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">🚀 Organized AI Marketplace</h1>
+            <p class="hero-subtitle">Discover and install AI agents, specialized subagents, custom commands, settings, hooks, MCPs, and templates for Claude Code</p>
+        </div>
+    </section>
+
+    <!-- Category Tabs -->
+    <section class="categories">
+        <div class="container">
+            <div class="category-tabs" role="tablist" aria-label="Component categories">
+                <button class="category-tab active" data-category="agents" role="tab" aria-selected="true">
+                    🤖 Agents
+                </button>
+                <button class="category-tab" data-category="subagents" role="tab" aria-selected="false">
+                    🎯 Subagents
+                </button>
+                <button class="category-tab" data-category="commands" role="tab" aria-selected="false">
+                    ⚡ Commands
+                </button>
+                <button class="category-tab" data-category="settings" role="tab" aria-selected="false">
+                    ⚙️ Settings
+                </button>
+                <button class="category-tab" data-category="hooks" role="tab" aria-selected="false">
+                    🪝 Hooks
+                </button>
+                <button class="category-tab" data-category="mcps" role="tab" aria-selected="false">
+                    🔌 MCPs
+                </button>
+                <button class="category-tab" data-category="plugins" role="tab" aria-selected="false">
+                    🧩 Plugins
+                </button>
+                <button class="category-tab" data-category="skills" role="tab" aria-selected="false">
+                    💡 Skills
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <div class="container-fluid">
+            <div class="content-wrapper">
+                <!-- Left Column: Marketplace -->
+                <div class="marketplace-column">
+                    <!-- Search and Filter Bar -->
+                    <div class="search-bar">
+                        <div class="search-input-wrapper">
+                            <input
+                                type="text"
+                                id="searchInput"
+                                class="search-input"
+                                placeholder="Search components, settings, templates..."
+                                aria-label="Search marketplace"
+                            >
+                            <span class="search-results-count" id="resultsCount"></span>
+                        </div>
+                        <div class="filter-controls">
+                            <select id="sortSelect" class="sort-select" aria-label="Sort results">
+                                <option value="downloads">Most Downloaded</option>
+                                <option value="alphabetical">Alphabetical</option>
+                                <option value="newest">Newest</option>
+                                <option value="updated">Recently Updated</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Company/Platform Filter -->
+                    <div class="company-filter" id="companyFilter">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Component Cards Grid -->
+                    <div class="components-grid" id="componentsGrid">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Popular Stacks Section -->
+                    <section class="popular-stacks">
+                        <h2 class="section-title">⭐ Popular Stacks</h2>
+                        <div class="stacks-grid" id="stacksGrid">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column: Stack Builder -->
+                <aside class="stack-builder" id="stackBuilder">
+                    <div class="stack-builder-sticky">
+                        <h3 class="stack-builder-title">📦 Your Stack</h3>
+                        <div class="stack-summary" id="stackSummary">
+                            <div class="stack-stat">
+                                <span class="stat-label">🤖 Agents:</span>
+                                <span class="stat-value" id="agentsCount">0</span>
+                            </div>
+                            <div class="stack-stat">
+                                <span class="stat-label">🎯 Subagents:</span>
+                                <span class="stat-value" id="subagentsCount">0</span>
+                            </div>
+                            <div class="stack-stat">
+                                <span class="stat-label">⚡ Commands:</span>
+                                <span class="stat-value" id="commandsCount">0</span>
+                            </div>
+                            <div class="stack-stat">
+                                <span class="stat-label">⚙️ Settings:</span>
+                                <span class="stat-value" id="settingsCount">0</span>
+                            </div>
+                            <div class="stack-stat">
+                                <span class="stat-label">🪝 Hooks:</span>
+                                <span class="stat-value" id="hooksCount">0</span>
+                            </div>
+                            <div class="stack-stat">
+                                <span class="stat-label">🔌 MCPs:</span>
+                                <span class="stat-value" id="mcpsCount">0</span>
+                            </div>
+                            <div class="stack-stat">
+                                <span class="stat-label">💡 Skills:</span>
+                                <span class="stat-value" id="skillsCount">0</span>
+                            </div>
+                        </div>
+
+                        <div class="stack-items" id="stackItems">
+                            <p class="empty-stack-message">Add components to build your stack</p>
+                        </div>
+
+                        <div class="stack-actions">
+                            <button class="btn btn-primary" id="generateCommand" disabled>
+                                Generate Install Command
+                            </button>
+                            <button class="btn btn-secondary" id="shareStack" disabled>
+                                Share Stack
+                            </button>
+                            <button class="btn btn-tertiary" id="clearStack">
+                                Clear All
+                            </button>
+                        </div>
+
+                        <div class="install-command-output" id="commandOutput" style="display: none;">
+                            <label class="command-label">Install Command:</label>
+                            <div class="command-box">
+                                <code id="installCommand"></code>
+                                <button class="copy-btn" id="copyCommand" aria-label="Copy command">
+                                    📋
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Organized AI</h4>
+                    <p>Building the future of AI-powered development</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <a href="https://lu.ma/organizedai-vip" target="_blank">Live Events</a>
+                    <a href="https://lu.ma/Organizedai" target="_blank">Join Community</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="https://github.com/Organized-AI/OAI-marketplace" target="_blank">GitHub</a>
+                    <a href="#">Documentation</a>
+                    <a href="#">API</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Organized AI. MIT License. Built with ❤️ for developers.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Load scripts in order -->
+    <script src="data.js"></script>
+    <script src="lib/relationship-mapper.js"></script>
+    <script src="lib/prompt-generator.js"></script>
+    <script src="claude-integration.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Add spinner animation -->
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>

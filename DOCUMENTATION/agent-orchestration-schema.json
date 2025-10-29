@@ -1,0 +1,378 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent-Subagent Orchestration Schema",
+  "description": "Defines how agents spawn and coordinate subagents with model selection and execution patterns",
+  "type": "object",
+  "definitions": {
+    "modelType": {
+      "type": "string",
+      "enum": ["haiku", "sonnet", "opus"],
+      "description": "Claude model to use: haiku (fast/cheap), sonnet (balanced), opus (complex/critical)"
+    },
+    "priorityLevel": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"],
+      "description": "Task priority for resource allocation and ordering"
+    },
+    "subagentExecution": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Subagent ID to spawn"
+        },
+        "model": {
+          "$ref": "#/definitions/modelType"
+        },
+        "priority": {
+          "$ref": "#/definitions/priorityLevel"
+        },
+        "timeout": {
+          "type": "number",
+          "description": "Optional timeout in seconds"
+        },
+        "retries": {
+          "type": "number",
+          "default": 1,
+          "description": "Number of retry attempts on failure"
+        }
+      },
+      "required": ["id", "model", "priority"]
+    },
+    "executionGroup": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "type": "number",
+          "description": "Sequential group number (1, 2, 3...)"
+        },
+        "parallel": {
+          "type": "boolean",
+          "description": "Whether subagents in this group execute in parallel"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of this execution phase"
+        },
+        "subagents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/subagentExecution"
+          }
+        }
+      },
+      "required": ["group", "parallel", "subagents"]
+    }
+  },
+  "examples": [
+    {
+      "id": "agents-development-team-frontend-developer",
+      "name": "frontend-developer",
+      "spawnsSubagents": {
+        "sequential": [
+          {
+            "group": 1,
+            "parallel": true,
+            "description": "Initial code analysis and architecture review",
+            "subagents": [
+              {
+                "id": "subagents-quality-security-code-reviewer",
+                "model": "sonnet",
+                "priority": "high"
+              },
+              {
+                "id": "subagents-language-specialists-react-specialist",
+                "model": "sonnet",
+                "priority": "high"
+              }
+            ]
+          },
+          {
+            "group": 2,
+            "parallel": true,
+            "description": "Performance optimization and testing",
+            "subagents": [
+              {
+                "id": "subagents-quality-security-performance-engineer",
+                "model": "haiku",
+                "priority": "medium"
+              },
+              {
+                "id": "subagents-quality-security-qa-expert",
+                "model": "haiku",
+                "priority": "medium"
+              },
+              {
+                "id": "subagents-developer-experience-refactoring-specialist",
+                "model": "haiku",
+                "priority": "low"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "agents-cloud-infrastructure-devops-engineer",
+      "name": "devops-engineer",
+      "spawnsSubagents": {
+        "sequential": [
+          {
+            "group": 1,
+            "parallel": false,
+            "description": "Infrastructure planning and design",
+            "subagents": [
+              {
+                "id": "subagents-infrastructure-cloud-architect",
+                "model": "opus",
+                "priority": "critical"
+              }
+            ]
+          },
+          {
+            "group": 2,
+            "parallel": true,
+            "description": "Infrastructure provisioning",
+            "subagents": [
+              {
+                "id": "subagents-infrastructure-terraform-engineer",
+                "model": "sonnet",
+                "priority": "high"
+              },
+              {
+                "id": "subagents-infrastructure-kubernetes-specialist",
+                "model": "sonnet",
+                "priority": "high"
+              }
+            ]
+          },
+          {
+            "group": 3,
+            "parallel": true,
+            "description": "Monitoring, security, and validation",
+            "subagents": [
+              {
+                "id": "subagents-infrastructure-sre-engineer",
+                "model": "haiku",
+                "priority": "high"
+              },
+              {
+                "id": "subagents-quality-security-security-auditor",
+                "model": "sonnet",
+                "priority": "critical"
+              },
+              {
+                "id": "subagents-quality-security-qa-expert",
+                "model": "haiku",
+                "priority": "medium"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "agents-ai-specialists-ai-engineer",
+      "name": "ai-engineer",
+      "spawnsSubagents": {
+        "sequential": [
+          {
+            "group": 1,
+            "parallel": true,
+            "description": "Data preparation and model research",
+            "subagents": [
+              {
+                "id": "subagents-data-ai-data-engineer",
+                "model": "sonnet",
+                "priority": "high"
+              },
+              {
+                "id": "subagents-research-analysis-research-analyst",
+                "model": "haiku",
+                "priority": "medium"
+              }
+            ]
+          },
+          {
+            "group": 2,
+            "parallel": false,
+            "description": "Model training and optimization (sequential for GPU resources)",
+            "subagents": [
+              {
+                "id": "subagents-data-ai-machine-learning-engineer",
+                "model": "opus",
+                "priority": "critical",
+                "timeout": 600
+              }
+            ]
+          },
+          {
+            "group": 3,
+            "parallel": true,
+            "description": "Evaluation, testing, and deployment",
+            "subagents": [
+              {
+                "id": "subagents-quality-security-performance-engineer",
+                "model": "sonnet",
+                "priority": "high"
+              },
+              {
+                "id": "subagents-quality-security-qa-expert",
+                "model": "haiku",
+                "priority": "medium"
+              },
+              {
+                "id": "subagents-developer-experience-documentation-engineer",
+                "model": "haiku",
+                "priority": "medium"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "agents-development-team-fullstack-developer",
+      "name": "fullstack-developer",
+      "spawnsSubagents": {
+        "sequential": [
+          {
+            "group": 1,
+            "parallel": false,
+            "description": "API design and architecture planning",
+            "subagents": [
+              {
+                "id": "subagents-core-development-api-designer",
+                "model": "opus",
+                "priority": "critical"
+              }
+            ]
+          },
+          {
+            "group": 2,
+            "parallel": true,
+            "description": "Parallel frontend and backend development",
+            "subagents": [
+              {
+                "id": "subagents-core-development-frontend-developer",
+                "model": "sonnet",
+                "priority": "high"
+              },
+              {
+                "id": "subagents-core-development-backend-developer",
+                "model": "sonnet",
+                "priority": "high"
+              }
+            ]
+          },
+          {
+            "group": 3,
+            "parallel": true,
+            "description": "Code quality, security, and performance review",
+            "subagents": [
+              {
+                "id": "subagents-quality-security-code-reviewer",
+                "model": "sonnet",
+                "priority": "high"
+              },
+              {
+                "id": "subagents-quality-security-security-auditor",
+                "model": "sonnet",
+                "priority": "critical"
+              },
+              {
+                "id": "subagents-quality-security-performance-engineer",
+                "model": "haiku",
+                "priority": "medium"
+              }
+            ]
+          },
+          {
+            "group": 4,
+            "parallel": true,
+            "description": "Testing and documentation",
+            "subagents": [
+              {
+                "id": "subagents-quality-security-qa-expert",
+                "model": "haiku",
+                "priority": "medium"
+              },
+              {
+                "id": "subagents-developer-experience-documentation-engineer",
+                "model": "haiku",
+                "priority": "low"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "agents-security-security-engineer",
+      "name": "security-engineer",
+      "spawnsSubagents": {
+        "sequential": [
+          {
+            "group": 1,
+            "parallel": true,
+            "description": "Comprehensive security analysis",
+            "subagents": [
+              {
+                "id": "subagents-quality-security-security-auditor",
+                "model": "opus",
+                "priority": "critical"
+              },
+              {
+                "id": "subagents-quality-security-code-reviewer",
+                "model": "sonnet",
+                "priority": "high"
+              }
+            ]
+          },
+          {
+            "group": 2,
+            "parallel": false,
+            "description": "Penetration testing (sequential to avoid conflicts)",
+            "subagents": [
+              {
+                "id": "subagents-quality-security-penetration-tester",
+                "model": "opus",
+                "priority": "critical",
+                "timeout": 900
+              }
+            ]
+          },
+          {
+            "group": 3,
+            "parallel": false,
+            "description": "Synthesize findings and create report",
+            "subagents": [
+              {
+                "id": "subagents-meta-orchestration-knowledge-synthesizer",
+                "model": "sonnet",
+                "priority": "high"
+              }
+            ]
+          },
+          {
+            "group": 4,
+            "parallel": true,
+            "description": "Remediation and documentation",
+            "subagents": [
+              {
+                "id": "subagents-developer-experience-refactoring-specialist",
+                "model": "sonnet",
+                "priority": "high"
+              },
+              {
+                "id": "subagents-developer-experience-documentation-engineer",
+                "model": "haiku",
+                "priority": "medium"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

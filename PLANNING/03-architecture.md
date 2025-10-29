@@ -1,311 +1,362 @@
 # System Architecture
 
 ## Architecture Overview
-*This document outlines the high-level system architecture, technology choices, and design decisions for the project.*
+
+This document outlines the high-level system architecture for the **Organized AI Marketplace**, with emphasis on the **Stack Builder** visual component composer and marketplace infrastructure.
+
+**Key Design Decision**: Next.js 14 with App Router serves dual purposes:
+1. **Marketing + Marketplace** (Server-Side Rendering for SEO)
+2. **Stack Builder** (Client-Side Interactivity for drag-and-drop)
+
+---
 
 ## High-Level Architecture
 
 ### System Context Diagram
+
 ```
-[External Users] --> [Load Balancer] --> [Web Application]
-                                             |
-                                             v
-[Third-party APIs] <--> [API Gateway] <--> [Backend Services]
-                                             |
-                                             v
-                      [Cache Layer] <--> [Database Layer]
-                                             |
-                                             v
-                                       [File Storage]
+┌─────────────────────────────────────────────────────────────────────┐
+│                          External Users                             │
+│  (Developers, Teams, Contributors, Marketplace Browsers)            │
+└────────────────────────┬────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    CDN (Vercel Edge Network)                        │
+│          Cache static assets, images, component metadata            │
+└────────────────────────┬────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                   Next.js 14 Application (Vercel)                   │
+│  ┌────────────────┬──────────────────┬─────────────────────────┐   │
+│  │ Marketing Pages│  Marketplace     │  Stack Builder          │   │
+│  │ (SSR)          │  (SSR + Client)  │  (Client-heavy)         │   │
+│  │ - Homepage     │  - /agents       │  - /builder             │   │
+│  │ - /docs        │  - /mcps         │  - /stack/:id           │   │
+│  │ - /about       │  - /commands     │  - Interactive canvas   │   │
+│  └────────────────┴──────────────────┴─────────────────────────┘   │
+└────────────────────────┬────────────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    API Layer (Next.js API Routes)                   │
+│  /api/components  │  /api/stacks  │  /api/analytics  │  /api/auth  │
+└────────────────────────┬────────────────────────────────────────────┘
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+        ▼                ▼                ▼
+┌───────────────┐  ┌──────────────┐  ┌─────────────────┐
+│   Supabase    │  │   Redis      │  │  GitHub API     │
+│  (PostgreSQL) │  │   (Cache)    │  │  (OAuth, Data)  │
+│  - Stacks DB  │  │  - Metadata  │  │  - Auth         │
+│  - Reviews    │  │  - Sessions  │  │  - Component    │
+│  - Analytics  │  │              │  │    source code  │
+└───────────────┘  └──────────────┘  └─────────────────┘
 ```
 
-### Architecture Principles
-- **Scalability**: Design for horizontal scaling
-- **Reliability**: Build in redundancy and fault tolerance
-- **Security**: Security by design, not as an afterthought
-- **Maintainability**: Clean, modular, well-documented code
-- **Performance**: Optimize for speed and efficiency
-- **Cost-effectiveness**: Balance features with infrastructure costs
+---
+
+## Architecture Principles
+
+1. **Progressive Enhancement**: Marketing works without JS, Stack Builder enhances with it
+2. **Edge-First**: Leverage Vercel Edge for global low-latency
+3. **API-Driven**: Separate concerns (UI ↔ Data) for future mobile apps
+4. **Component Isolation**: Marketplace and Stack Builder share data, not UI
+5. **Performance Budget**: <2s initial load, <500ms client-side navigation
+6. **Offline-Capable**: Stack Builder uses localStorage for drafts
+
+---
 
 ## Technology Stack
 
 ### Frontend Technology Stack
 
 #### Core Framework
-**Choice**: [React/Vue/Angular/Next.js]
-**Rationale**: [Why this framework was chosen]
-- Pros: [List advantages]
-- Cons: [List potential drawbacks]
-- Alternatives considered: [Other options evaluated]
 
-#### Styling & UI
-- **CSS Framework**: [Tailwind CSS/Material-UI/Bootstrap]
-- **Component Library**: [If using pre-built components]
-- **Styling Approach**: [CSS Modules/Styled Components/Emotion]
+**Choice**: **Next.js 14 (App Router) with React 18**
 
-#### State Management
-- **Library**: [Redux/Zustand/Context API/Vuex]
-- **Rationale**: [Why this choice fits the project needs]
+**Rationale**:
+- ✅ **Hybrid Rendering**: SSR for marketplace SEO, client components for Stack Builder interactivity
+- ✅ **Built-in API Routes**: Component metadata API without separate backend
+- ✅ **Edge Runtime**: Fast global delivery via Vercel Edge Network
+- ✅ **React Server Components**: Reduce client bundle size for marketing pages
+- ✅ **Image Optimization**: Built-in `next/image` for component icons
+- ✅ **File-based Routing**: `app/builder/page.tsx` maps to `/builder`
 
-#### Build Tools & Development
-- **Bundler**: [Webpack/Vite/Parcel]
-- **Package Manager**: [npm/yarn/pnpm]
-- **Development Server**: [Built-in/custom]
-- **Testing Framework**: [Jest/Vitest/Cypress]
+**Pros**:
+- Zero-config TypeScript, Fast Refresh, built-in optimizations
+- Excellent developer experience (hot reload, error overlay)
+- Vercel deployment is one-click (perfect for open-source)
+- Large ecosystem (shadcn/ui, Tailwind plugins)
 
-### Backend Technology Stack
+**Cons**:
+- Learning curve for App Router (newer paradigm)
+- Heavier than pure React SPA (but worth it for SEO)
 
-#### Runtime & Framework
-**Runtime**: [Node.js/Python/Go/Java/.NET]
-**Framework**: [Express/FastAPI/Gin/Spring Boot/ASP.NET]
-**Version**: [Specific version and rationale]
-
-#### Database
-**Primary Database**: [PostgreSQL/MySQL/MongoDB]
-**Rationale**: [Why this database fits the data model and scale]
-- **Schema Design**: [Relational/Document/Graph]
-- **Scaling Strategy**: [Read replicas/Sharding/Clustering]
-
-**Cache Database**: [Redis/Memcached]
-**Purpose**: [Session storage/Query caching/Rate limiting]
-
-#### API Design
-- **API Style**: [REST/GraphQL/gRPC]
-- **Documentation**: [OpenAPI/Swagger/GraphQL Schema]
-- **Versioning Strategy**: [URL versioning/Header versioning]
-- **Authentication**: [JWT/OAuth2/API Keys]
-
-### Infrastructure & DevOps
-
-#### Cloud Provider
-**Provider**: [AWS/Google Cloud/Azure/Vercel]
-**Rationale**: [Cost, features, team expertise, etc.]
-
-#### Hosting & Deployment
-- **Frontend Hosting**: [Vercel/Netlify/CloudFlare Pages/S3+CloudFront]
-- **Backend Hosting**: [Docker containers/Serverless functions/VPS]
-- **Database Hosting**: [Managed service/Self-hosted]
-- **File Storage**: [AWS S3/Google Cloud Storage/CloudFlare R2]
-
-#### CI/CD Pipeline
-- **Version Control**: [GitHub/GitLab/Bitbucket]
-- **CI/CD Platform**: [GitHub Actions/GitLab CI/Jenkins]
-- **Deployment Strategy**: [Blue-green/Rolling/Canary]
-- **Environment Management**: [Development/Staging/Production]
-
-#### Monitoring & Observability
-- **Application Performance**: [New Relic/DataDog/Application Insights]
-- **Error Tracking**: [Sentry/Rollbar/Bugsnag]
-- **Logging**: [CloudWatch/Google Cloud Logging/ELK Stack]
-- **Uptime Monitoring**: [Pingdom/UptimeRobot/StatusCake]
-
-## System Components
-
-### Frontend Components
-
-#### User Interface Layer
-- **Responsive Design**: Mobile-first approach
-- **Progressive Web App**: Offline functionality and installability
-- **Component Architecture**: Reusable, composable components
-- **Routing**: Client-side routing with [React Router/Vue Router/Angular Router]
-
-#### Data Management
-- **API Communication**: RESTful API calls with proper error handling
-- **State Synchronization**: Real-time updates with [WebSockets/Server-Sent Events]
-- **Caching Strategy**: Browser caching and service worker implementation
-- **Offline Support**: Local storage and sync capabilities
-
-### Backend Components
-
-#### API Layer
-```
-API Gateway
-├── Authentication Middleware
-├── Rate Limiting
-├── Request Validation
-├── Response Formatting
-└── Error Handling
-```
-
-#### Business Logic Layer
-```
-Services
-├── User Service
-├── Content Service
-├── Notification Service
-├── Payment Service (if applicable)
-└── Analytics Service
-```
-
-#### Data Access Layer
-```
-Data Access
-├── Database Models
-├── Query Optimization
-├── Connection Pooling
-├── Migration Management
-└── Backup Strategies
-```
-
-### Integration Points
-
-#### Third-party Services
-- **Authentication**: [Auth0/Firebase Auth/Custom OAuth]
-- **Payment Processing**: [Stripe/PayPal/Square] (if applicable)
-- **Email Service**: [SendGrid/AWS SES/Mailgun]
-- **SMS Service**: [Twilio/AWS SNS] (if applicable)
-- **Analytics**: [Google Analytics/Mixpanel/Amplitude]
-- **Search**: [Elasticsearch/Algolia/AWS CloudSearch] (if applicable)
-
-#### API Integrations
-- **External API 1**: [Purpose and integration method]
-- **External API 2**: [Purpose and integration method]
-- **Webhook Endpoints**: [For receiving external updates]
-
-## Data Architecture
-
-### Data Model Overview
-*High-level description of how data flows through the system*
-
-### Database Design
-
-#### Core Entities
-```sql
--- Example entity structure
-Users
-├── id (UUID, Primary Key)
-├── email (String, Unique)
-├── password_hash (String)
-├── created_at (Timestamp)
-└── updated_at (Timestamp)
-
-[Additional entities based on your project]
-```
-
-#### Relationships
-- **One-to-Many**: [Describe key relationships]
-- **Many-to-Many**: [Describe complex relationships]
-- **Data Integrity**: [Foreign key constraints and validation rules]
-
-#### Indexing Strategy
-- **Primary Indexes**: [On frequently queried columns]
-- **Composite Indexes**: [For complex queries]
-- **Performance Considerations**: [Query optimization strategies]
-
-### Data Flow
-1. **User Input**: [How data enters the system]
-2. **Validation**: [Data validation and sanitization]
-3. **Processing**: [Business logic application]
-4. **Storage**: [Data persistence strategy]
-5. **Retrieval**: [Data querying and presentation]
-
-## Security Architecture
-
-### Authentication & Authorization
-- **Authentication Method**: [JWT/Session-based/OAuth2]
-- **Authorization Model**: [RBAC/ABAC/Custom]
-- **Session Management**: [Secure session handling]
-- **Password Security**: [Hashing algorithm and salt strategy]
-
-### Data Protection
-- **Encryption in Transit**: [TLS version and configuration]
-- **Encryption at Rest**: [Database and file encryption]
-- **API Security**: [Rate limiting, input validation, CORS]
-- **Secret Management**: [Environment variables, key rotation]
-
-### Security Monitoring
-- **Intrusion Detection**: [Monitoring for suspicious activity]
-- **Audit Logging**: [Security event logging and retention]
-- **Vulnerability Management**: [Regular security updates and patches]
-
-## Performance Considerations
-
-### Scalability Strategy
-- **Horizontal Scaling**: [Load balancing and multi-instance deployment]
-- **Vertical Scaling**: [Resource optimization and upgrade paths]
-- **Database Scaling**: [Read replicas, connection pooling, query optimization]
-- **CDN Strategy**: [Content delivery and static asset optimization]
-
-### Caching Strategy
-- **Application Caching**: [In-memory caching for frequently accessed data]
-- **Database Caching**: [Query result caching]
-- **Browser Caching**: [Static asset caching and cache invalidation]
-- **API Response Caching**: [Response caching for expensive operations]
-
-### Performance Monitoring
-- **Key Metrics**: [Response time, throughput, error rate, resource utilization]
-- **Performance Budgets**: [Maximum acceptable loading times and resource usage]
-- **Optimization Targets**: [Specific performance goals and monitoring thresholds]
-
-## Deployment Architecture
-
-### Environment Strategy
-```
-Development Environment
-├── Local development with Docker Compose
-├── Shared development database
-└── Mock external services
-
-Staging Environment
-├── Production-like configuration
-├── Full integration testing
-└── Performance testing
-
-Production Environment
-├── High availability setup
-├── Monitoring and alerting
-└── Backup and disaster recovery
-```
-
-### Infrastructure as Code
-- **Configuration Management**: [Terraform/CloudFormation/Pulumi]
-- **Container Orchestration**: [Docker Compose/Kubernetes/ECS]
-- **Service Mesh**: [If using microservices architecture]
-
-## Risk Mitigation
-
-### Technical Risks
-- **Single Points of Failure**: [Identified risks and mitigation strategies]
-- **Data Loss**: [Backup and recovery procedures]
-- **Performance Degradation**: [Monitoring and auto-scaling strategies]
-- **Security Breaches**: [Incident response procedures]
-
-### Operational Risks
-- **Dependency Failures**: [Fallback strategies for external services]
-- **Deployment Issues**: [Rollback procedures and health checks]
-- **Capacity Planning**: [Traffic growth and resource scaling]
-
-## Future Considerations
-
-### Extensibility
-- **Plugin Architecture**: [How to add new features without core changes]
-- **API Versioning**: [Strategy for evolving APIs without breaking changes]
-- **Data Migration**: [Strategies for schema evolution]
-
-### Technology Evolution
-- **Framework Updates**: [Strategy for keeping dependencies current]
-- **Cloud Migration**: [Plans for moving between cloud providers if needed]
-- **Microservices Migration**: [Path from monolith to microservices if applicable]
-
-## Decision Log
-
-### Architecture Decision Records (ADRs)
-
-#### ADR-001: [Decision Title]
-- **Status**: [Proposed/Accepted/Deprecated]
-- **Decision**: [What was decided]
-- **Rationale**: [Why this decision was made]
-- **Consequences**: [Positive and negative outcomes]
-- **Date**: [When decided]
-
-#### ADR-002: [Decision Title]
-[Continue for each major architectural decision]
+**Alternatives Considered**:
+- **React SPA + Vite**: Faster builds, but no SSR (bad for marketplace SEO)
+- **Remix**: Great SSR, but smaller ecosystem than Next.js
+- **SvelteKit**: Lighter bundle, but team less familiar with Svelte
 
 ---
 
-**Document Version**: 1.0
-**Architects**: [Names of people who contributed to this architecture]
-**Last Updated**: [Date]
-**Next Review**: [Date]
+#### Styling & UI
 
-*This architecture should be reviewed and updated as the project evolves and new requirements emerge.*
+**CSS Framework**: **Tailwind CSS 3.4+**
+- Utility-first, fast prototyping
+- Excellent with Next.js (built-in PostCSS support)
+- Purges unused CSS (tiny production bundles)
+
+**Component Library**: **shadcn/ui** (Radix UI + Tailwind)
+- Copy-paste components (no npm dependency bloat)
+- Accessible by default (WCAG 2.1 AA)
+- Customizable (Tailwind-based styling)
+- Components used:
+  - `Button`, `Card`, `Dialog`, `DropdownMenu`
+  - `Input`, `Label`, `Select`, `Tabs`
+  - `Tooltip`, `Sheet` (mobile drawer)
+
+**Icons**: **Lucide Icons** (React library)
+- Tree-shakeable (only import icons you use)
+- Consistent with shadcn/ui design system
+
+**Fonts**:
+- **Sans-serif**: Inter (Google Fonts)
+- **Monospace**: JetBrains Mono (code snippets, CLI commands)
+
+---
+
+#### State Management
+
+**Library**: **Zustand** (for Stack Builder) + **React Server Components** (for marketplace)
+
+**Rationale**:
+- **Zustand** for Stack Builder:
+  - Lightweight (1KB gzipped)
+  - Simple API (`create()`, `useStore()`)
+  - Perfect for canvas state (selected components, drag positions)
+  - Built-in middleware (persist to localStorage, devtools)
+
+- **React Server Components** for marketplace:
+  - Fetch data server-side (no client-side state needed)
+  - Automatic data deduplication
+  - Zero client-side state management overhead
+
+**Stack Builder State Structure**:
+```typescript
+interface StackBuilderState {
+  // Canvas state
+  components: ComponentNode[]; // Dragged components on canvas
+  connections: Connection[];   // Arrows between components
+  selectedNodeId: string | null;
+
+  // Configuration state
+  configurations: Record<string, ComponentConfig>;
+
+  // Actions
+  addComponent: (component: Component) => void;
+  removeComponent: (id: string) => void;
+  updateConfig: (id: string, config: Partial<ComponentConfig>) => void;
+  connectNodes: (sourceId: string, targetId: string) => void;
+
+  // Export
+  generateZip: () => Promise<Blob>;
+  generateCLICommand: () => string;
+  saveStack: () => Promise<string>; // Returns stack ID
+}
+```
+
+---
+
+#### Drag & Drop System
+
+**Library**: **@xyflow/react** (formerly React Flow)
+
+**Why Xyflow**:
+- ✅ Purpose-built for node-based UIs (Figma-like experience)
+- ✅ Handles complex canvas interactions (zoom, pan, select, drag)
+- ✅ Built-in edge rendering (arrows between components)
+- ✅ Extensible (custom node types for agents/MCPs/commands)
+- ✅ Performance-optimized (virtual rendering for 100+ nodes)
+
+**Node Types**:
+```typescript
+const componentNodeTypes = {
+  agent: AgentNode,      // Blue border, robot icon
+  mcp: MCPNode,          // Purple border, plug icon
+  command: CommandNode,  // Green border, lightning icon
+  hook: HookNode,        // Orange border, hook icon
+  setting: SettingNode   // Gray border, gear icon
+};
+
+<ReactFlow
+  nodes={components}
+  edges={connections}
+  nodeTypes={componentNodeTypes}
+  onConnect={handleConnect}
+  onNodeClick={handleSelectNode}
+/>
+```
+
+---
+
+### Backend Technology Stack
+
+#### API Layer
+
+**Choice**: **Next.js API Routes** (Serverless Functions on Vercel)
+
+**Endpoints**:
+
+```typescript
+// Component Metadata API
+GET  /api/components           // List all components
+GET  /api/components/[id]      // Get component details
+GET  /api/components/search?q= // Search components
+
+// Stack Management API
+GET  /api/stacks               // List public stacks
+POST /api/stacks               // Create new stack
+GET  /api/stacks/[id]          // Get stack config
+PUT  /api/stacks/[id]          // Update stack (auth required)
+POST /api/stacks/[id]/upvote   // Upvote stack
+
+// Analytics API (Phase 2)
+GET  /api/analytics/usage      // Token usage stats
+POST /api/analytics/track      // Track component install
+
+// Auth API (GitHub OAuth)
+GET  /api/auth/callback        // OAuth callback
+POST /api/auth/logout          // Clear session
+```
+
+---
+
+#### Database
+
+**Choice**: **Supabase (PostgreSQL + Realtime)**
+
+**Schema Design**:
+
+```sql
+-- Shared Stacks Table
+CREATE TABLE stacks (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  author VARCHAR(100),
+  components JSONB NOT NULL,
+  configuration JSONB,
+  is_public BOOLEAN DEFAULT false,
+  upvotes INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Component Reviews (Phase 2)
+CREATE TABLE reviews (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  component_id VARCHAR(100) NOT NULL,
+  component_type VARCHAR(20) NOT NULL,
+  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  review_text TEXT,
+  author VARCHAR(100),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX idx_stacks_public ON stacks(is_public) WHERE is_public = true;
+CREATE INDEX idx_reviews_component ON reviews(component_id, component_type);
+```
+
+---
+
+## Next.js App Router Structure
+
+```
+app/
+├── (marketing)/
+│   ├── layout.tsx
+│   ├── page.tsx              # Homepage
+│   └── docs/
+│       └── page.tsx
+│
+├── (marketplace)/
+│   ├── agents/
+│   │   ├── page.tsx          # /agents
+│   │   └── [id]/
+│   │       └── page.tsx      # /agents/react-specialist
+│   ├── mcps/
+│   │   └── page.tsx
+│   └── commands/
+│       └── page.tsx
+│
+├── builder/
+│   └── page.tsx              # /builder (Stack Builder)
+│
+├── stack/
+│   └── [id]/
+│       └── page.tsx          # /stack/abc123
+│
+└── api/
+    ├── components/
+    │   └── route.ts
+    └── stacks/
+        └── route.ts
+```
+
+---
+
+## Deployment Architecture
+
+**Platform**: **Vercel**
+
+**Why Vercel**:
+- ✅ Native Next.js support
+- ✅ Zero-config deployment
+- ✅ Edge functions globally distributed
+- ✅ Automatic HTTPS
+- ✅ Preview deployments for PRs
+
+---
+
+## Technology Decision Summary
+
+| Component | Technology | Why |
+|-----------|-----------|-----|
+| **Frontend Framework** | Next.js 14 | SSR for SEO + client interactivity |
+| **UI Library** | React 18 | Component reusability, large ecosystem |
+| **Styling** | Tailwind CSS + shadcn/ui | Fast prototyping, accessible components |
+| **State Management** | Zustand | Lightweight, perfect for canvas state |
+| **Drag & Drop** | @xyflow/react | Purpose-built for node-based UIs |
+| **Backend** | Next.js API Routes | Serverless, co-located with frontend |
+| **Database** | Supabase (PostgreSQL) | Free tier, built-in auth, realtime |
+| **Hosting** | Vercel | Zero-config, Edge network |
+
+---
+
+`★ Insight ─────────────────────────────────────`
+**Why Next.js 14 App Router is Perfect for This Project**:
+
+The App Router's **hybrid rendering** model solves a classic dilemma: *How do you build a site that's both SEO-friendly AND highly interactive?*
+
+**For the Marketplace** (`/agents`, `/mcps`):
+- Server Components fetch metadata on the server
+- Google sees fully-rendered HTML (great SEO)
+- Fast initial page load
+
+**For Stack Builder** (`/builder`):
+- Client Components with `"use client"` directive
+- Full React interactivity (drag, drop, canvas)
+- No wasted server resources
+
+**The magic**: Both share the same codebase, same component library, same API. You don't maintain two separate apps.
+`─────────────────────────────────────────────────`
+
+---
+
+**Last Updated**: October 28, 2025
+**Version**: 1.0
+**Status**: ✅ Ready for Implementation

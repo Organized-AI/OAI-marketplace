@@ -1,0 +1,403 @@
+/* ===========================
+   Agent-Subagent Relationships
+   =========================== */
+
+/* Relationship Badge */
+.relationship-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    margin-top: 0.5rem;
+}
+
+.relationship-badge:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-accent);
+    color: var(--color-accent-bright);
+    transform: translateY(-1px);
+}
+
+.relationship-badge .badge-icon {
+    font-size: 0.875rem;
+}
+
+.relationship-badge .badge-text {
+    font-weight: 500;
+}
+
+/* Relationship Container in Cards */
+.component-card .relationships {
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+}
+
+/* Relationship Tooltip */
+.relationship-tooltip {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 280px;
+    max-width: 400px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-md);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-base);
+    pointer-events: none;
+}
+
+.relationship-badge:hover .relationship-tooltip,
+.relationship-badge.active .relationship-tooltip {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.relationship-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: var(--color-bg-secondary);
+}
+
+.tooltip-header {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.tooltip-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.tooltip-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+    cursor: pointer;
+}
+
+.tooltip-item:hover {
+    background: var(--color-bg-hover);
+}
+
+.tooltip-item .item-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.tooltip-item .item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.tooltip-item .item-name {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tooltip-item .item-reason {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tooltip-item .relationship-strength {
+    flex-shrink: 0;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.relationship-strength.strength-explicit {
+    background: rgba(63, 185, 80, 0.15);
+    color: var(--color-success);
+}
+
+.relationship-strength.strength-category {
+    background: rgba(88, 166, 255, 0.15);
+    color: var(--color-accent);
+}
+
+.relationship-strength.strength-tags {
+    background: rgba(139, 148, 158, 0.15);
+    color: var(--color-text-secondary);
+}
+
+/* Relationship Network Visualization */
+.relationship-network {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 17, 23, 0.95);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+}
+
+.relationship-network.active {
+    display: flex;
+}
+
+.network-container {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    height: 80vh;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+}
+
+.network-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.network-title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.network-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 1;
+    transition: color var(--transition-fast);
+}
+
+.network-close:hover {
+    color: var(--color-text-primary);
+}
+
+.network-canvas {
+    width: 100%;
+    height: calc(100% - 60px);
+    position: relative;
+}
+
+/* Network Nodes */
+.network-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-bg-tertiary);
+    border: 2px solid var(--color-border);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.network-node:hover {
+    transform: scale(1.1);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 20px rgba(88, 166, 255, 0.3);
+}
+
+.network-node.agent-node {
+    width: 100px;
+    height: 100px;
+    border-width: 3px;
+    border-color: var(--color-accent);
+}
+
+.network-node.subagent-node {
+    width: 60px;
+    height: 60px;
+}
+
+.network-node-icon {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.network-node-name {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-align: center;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Network Edges */
+.network-edge {
+    position: absolute;
+    height: 2px;
+    background: var(--color-border);
+    transform-origin: left center;
+    pointer-events: none;
+}
+
+.network-edge.explicit {
+    background: var(--color-success);
+}
+
+.network-edge.category {
+    background: var(--color-accent);
+}
+
+.network-edge.tags {
+    background: var(--color-text-muted);
+}
+
+/* Relationship Legend */
+.relationship-legend {
+    position: absolute;
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+}
+
+.legend-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.legend-color {
+    width: 24px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.legend-color.explicit {
+    background: var(--color-success);
+}
+
+.legend-color.category {
+    background: var(--color-accent);
+}
+
+.legend-color.tags {
+    background: var(--color-text-muted);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .relationship-tooltip {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        top: auto;
+        transform: translateX(-50%);
+        max-width: calc(100vw - 40px);
+    }
+
+    .relationship-tooltip::after {
+        display: none;
+    }
+
+    .network-container {
+        height: 90vh;
+        padding: var(--spacing-md);
+    }
+
+    .relationship-legend {
+        position: static;
+        margin-top: var(--spacing-md);
+    }
+}
+
+/* Scrollbar Styling for Tooltip */
+.tooltip-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tooltip-list::-webkit-scrollbar-track {
+    background: var(--color-bg-tertiary);
+    border-radius: 3px;
+}
+
+.tooltip-list::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+.tooltip-list::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-hover);
+}
+
+/* Animation for Tooltip Appearance */
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.relationship-badge:hover .relationship-tooltip {
+    animation: tooltipFadeIn var(--transition-base);
+}

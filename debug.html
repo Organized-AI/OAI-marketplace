@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Data Loading Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+        .result {
+            background: #161b22;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+        }
+        .success { border-left: 4px solid #3fb950; }
+        .error { border-left: 4px solid #f85149; }
+        h2 { color: #58a6ff; }
+        pre { background: #0d1117; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Data Loading Debug</h1>
+    <div id="results"></div>
+
+    <script src="data.js"></script>
+    <script>
+        const results = document.getElementById('results');
+
+        function addResult(title, content, isError = false) {
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `<h2>${title}</h2><pre>${content}</pre>`;
+            results.appendChild(div);
+        }
+
+        // Test 1: Check if marketplaceData exists
+        try {
+            if (typeof marketplaceData !== 'undefined') {
+                addResult('✅ Test 1: marketplaceData loaded',
+                    `Type: ${typeof marketplaceData}\nKeys: ${Object.keys(marketplaceData).join(', ')}`);
+            } else {
+                addResult('❌ Test 1: marketplaceData NOT loaded', 'Variable is undefined', true);
+            }
+        } catch (e) {
+            addResult('❌ Test 1: Error', e.message, true);
+        }
+
+        // Test 2: Check agent count
+        try {
+            const agentCount = marketplaceData.agents ? marketplaceData.agents.length : 0;
+            addResult('✅ Test 2: Agents count',
+                `Found ${agentCount} agents\nSample: ${JSON.stringify(marketplaceData.agents[0], null, 2).substring(0, 300)}...`);
+        } catch (e) {
+            addResult('❌ Test 2: Error reading agents', e.message, true);
+        }
+
+        // Test 3: Check all categories
+        try {
+            const categories = ['agents', 'commands', 'settings', 'hooks', 'mcps'];
+            const counts = categories.map(cat =>
+                `${cat}: ${marketplaceData[cat] ? marketplaceData[cat].length : 0}`
+            );
+            addResult('✅ Test 3: All categories', counts.join('\n'));
+        } catch (e) {
+            addResult('❌ Test 3: Error', e.message, true);
+        }
+
+        // Test 4: Check helper functions
+        try {
+            const allComponents = getAllComponents();
+            addResult('✅ Test 4: getAllComponents()',
+                `Total components: ${allComponents.length}\nFirst component: ${allComponents[0].name}`);
+        } catch (e) {
+            addResult('❌ Test 4: Error calling getAllComponents()', e.message, true);
+        }
+
+        // Test 5: Check getComponentsByCategory
+        try {
+            const agents = getComponentsByCategory('agents');
+            addResult('✅ Test 5: getComponentsByCategory("agents")',
+                `Found ${agents.length} agents\nFirst: ${agents[0].name}`);
+        } catch (e) {
+            addResult('❌ Test 5: Error', e.message, true);
+        }
+
+        // Test 6: Check search function
+        try {
+            const searchResults = searchComponents('frontend');
+            addResult('✅ Test 6: searchComponents("frontend")',
+                `Found ${searchResults.length} results\n${searchResults.slice(0, 3).map(r => r.name).join(', ')}`);
+        } catch (e) {
+            addResult('❌ Test 6: Error', e.message, true);
+        }
+
+        // Test 7: Check popularStacks
+        try {
+            if (typeof popularStacks !== 'undefined') {
+                addResult('✅ Test 7: popularStacks loaded',
+                    `Found ${popularStacks.length} stacks\n${popularStacks.map(s => s.name).join(', ')}`);
+            } else {
+                addResult('❌ Test 7: popularStacks NOT loaded', 'Variable is undefined', true);
+            }
+        } catch (e) {
+            addResult('❌ Test 7: Error', e.message, true);
+        }
+
+        // Test 8: Check companies
+        try {
+            if (typeof companies !== 'undefined') {
+                addResult('✅ Test 8: companies loaded',
+                    `Found ${companies.length} companies\n${companies.join(', ')}`);
+            } else {
+                addResult('❌ Test 8: companies NOT loaded', 'Variable is undefined', true);
+            }
+        } catch (e) {
+            addResult('❌ Test 8: Error', e.message, true);
+        }
+    </script>
+</body>
+</html>
