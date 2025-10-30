@@ -18,12 +18,13 @@ export interface Component {
 
 export interface MarketplaceData {
   agents: Component[];
+  subagents: Component[]; // Task-oriented entities spawned by agents
+  skills: Component[]; // Capability definitions that agents possess
   commands: Component[];
   settings: Component[];
   hooks: Component[];
   mcps: Component[];
   templates?: Component[];
-  skills?: Component[];
   [key: string]: Component[] | undefined;
 }
 
