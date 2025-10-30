@@ -9,8 +9,16 @@ import { Node, Edge } from '@xyflow/react';
 
 /**
  * Component Types
+ *
+ * - agent: Full-featured AI specialists that coordinate workflows
+ * - subagent: Task-oriented entities spawned to complete specific tasks
+ * - skill: Capability definitions that describe what agents can do
+ * - mcp: Model Context Protocol integrations for external services
+ * - command: Custom slash commands for automation
+ * - hook: Event-driven automation triggers
+ * - setting: Configuration options
  */
-export type ComponentType = 'agent' | 'mcp' | 'command' | 'hook' | 'setting' | 'skill';
+export type ComponentType = 'agent' | 'subagent' | 'skill' | 'mcp' | 'command' | 'hook' | 'setting';
 
 /**
  * Component Metadata
@@ -158,4 +166,98 @@ export interface DraftState {
   edges: StackBuilderEdge[];
   stackName?: string;
   stackDescription?: string;
+}
+
+/**
+ * Skill Definition
+ * Represents a capability that agents can possess
+ */
+export interface Skill extends Component {
+  type: 'skill';
+  capabilities: string[];
+  tools?: string[];
+  models?: string[];
+  prerequisites?: string[];
+  proficiencyLevels?: ('beginner' | 'intermediate' | 'expert')[];
+  complexity: 'low' | 'medium' | 'high';
+  estimatedTokens?: number;
+  usedByAgents?: string[]; // Agent IDs that have this skill
+}
+
+/**
+ * Sub-Agent Template
+ * Defines a type of sub-agent that can be spawned
+ */
+export interface SubAgentTemplate extends Component {
+  type: 'subagent';
+  requiredSkills: string[]; // Skill IDs required
+  optionalSkills?: string[]; // Skill IDs that enhance capability
+  recommendedModel: 'claude-haiku-4' | 'claude-sonnet-4' | 'claude-opus-4';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  estimatedDuration?: string; // e.g., "2-5 minutes"
+  tokenBudget?: number;
+  canBeSpawnedBy?: string[]; // Agent IDs that can spawn this sub-agent
+}
+
+/**
+ * Sub-Agent Instance
+ * Runtime instance of a spawned sub-agent
+ */
+export interface SubAgentInstance {
+  id: string;
+  templateId: string; // References SubAgentTemplate
+  task: string; // Specific task assigned
+  skills: string[]; // Skill IDs being used
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  progress?: number; // 0-100
+  spawnedBy: string; // Parent agent ID
+  spawnedAt: Date;
+  completedAt?: Date;
+  result?: unknown;
+  error?: string;
+  model: string;
+  tokensUsed?: number;
+  cost?: number;
+}
+
+/**
+ * Agent with Skills
+ * Extends Component with skill-related properties
+ */
+export interface AgentWithSkills extends Component {
+  type: 'agent';
+  skills: string[]; // Skill IDs this agent possesses
+  canSpawnSubAgents: boolean;
+  subAgentTemplates?: string[]; // SubAgent template IDs this agent can spawn
+  maxConcurrentSubAgents?: number;
+}
+
+/**
+ * Orchestration Group
+ * Defines how sub-agents are executed
+ */
+export interface OrchestrationGroup {
+  groupNumber: number;
+  executionMode: 'sequential' | 'parallel';
+  description: string;
+  subagents: {
+    templateId: string;
+    name: string;
+    icon: string;
+    model: 'claude-haiku-4' | 'claude-sonnet-4' | 'claude-opus-4';
+    priority: 'critical' | 'high' | 'medium' | 'low';
+    timeout?: number;
+    retries?: number;
+    description: string;
+  }[];
+}
+
+/**
+ * Retry Configuration
+ * Defines retry behavior for sub-agents
+ */
+export interface RetryConfig {
+  maxRetries: number;
+  backoffMultiplier?: number;
+  initialDelay?: number;
 }

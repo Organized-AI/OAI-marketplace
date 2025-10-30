@@ -5,6 +5,9 @@
  * between different component types in the Stack Builder.
  *
  * Connection Logic:
+ * - Agents possess Skills (capabilities)
+ * - Agents spawn SubAgents (task executors)
+ * - SubAgents use Skills to execute tasks
  * - Agents use MCPs for external service access
  * - Agents invoke Commands for automation
  * - Hooks trigger Agents/Commands on events
@@ -71,6 +74,81 @@ export const CONNECTION_RULES: ConnectionRule[] = [
       'Fullstack Developer ↔ React Specialist (frontend delegation)',
       'Lead Developer ↔ Security Auditor (security review)',
       'Backend Developer ↔ Database Specialist (data modeling)',
+    ],
+  },
+
+  // Agent → Skill (Agents possess Skills)
+  {
+    sourceType: 'agent',
+    targetType: 'skill',
+    allowed: true,
+    direction: 'forward',
+    defaultType: 'required',
+    description: 'Agents possess skills that define their capabilities',
+    examples: [
+      'E-Commerce Specialist → Product Writing (content creation capability)',
+      'Data Scientist → Data Analysis (analytical capability)',
+      'Frontend Developer → React Development (UI framework capability)',
+    ],
+  },
+
+  // Agent → SubAgent (Agents spawn SubAgents)
+  {
+    sourceType: 'agent',
+    targetType: 'subagent',
+    allowed: true,
+    direction: 'forward',
+    defaultType: 'optional',
+    description: 'Agents can spawn sub-agents to handle specific tasks',
+    examples: [
+      'E-Commerce Specialist → Competitor Analyst (market research task)',
+      'Fullstack Developer → Code Reviewer (code quality task)',
+      'DevOps Engineer → Docker Optimizer (container optimization task)',
+    ],
+  },
+
+  // SubAgent → Skill (SubAgents use Skills)
+  {
+    sourceType: 'subagent',
+    targetType: 'skill',
+    allowed: true,
+    direction: 'forward',
+    defaultType: 'required',
+    description: 'Sub-agents require skills to execute their tasks',
+    examples: [
+      'Competitor Analyst → Market Research (uses research skills)',
+      'Code Reviewer → Code Review (uses review skills)',
+      'Test Generator → Testing (uses test creation skills)',
+    ],
+  },
+
+  // SubAgent → MCP (SubAgents may use MCPs)
+  {
+    sourceType: 'subagent',
+    targetType: 'mcp',
+    allowed: true,
+    direction: 'forward',
+    defaultType: 'optional',
+    description: 'Sub-agents can use MCPs for external services during task execution',
+    examples: [
+      'Competitor Analyst → Web Scraping MCP (gather competitor data)',
+      'Code Reviewer → GitHub MCP (access repository)',
+      'Database Optimizer → Database MCP (analyze queries)',
+    ],
+  },
+
+  // Skill → MCP (Skills may require MCPs)
+  {
+    sourceType: 'skill',
+    targetType: 'mcp',
+    allowed: true,
+    direction: 'forward',
+    defaultType: 'optional',
+    description: 'Skills may depend on MCPs for external tool access',
+    examples: [
+      'Web Scraping → Browser MCP (browser automation)',
+      'Database Design → Database MCP (schema management)',
+      'API Integration → REST Client MCP (API calls)',
     ],
   },
 
