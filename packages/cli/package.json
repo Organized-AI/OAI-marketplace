@@ -1,0 +1,36 @@
+{
+  "name": "@organized-ai/cli",
+  "version": "0.1.0",
+  "description": "CLI for Organized AI component management",
+  "type": "module",
+  "bin": {
+    "organized-ai": "./dist/index.js",
+    "oai": "./dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@organized-ai/phase-0": "workspace:*",
+    "@organized-ai/stack-builder": "workspace:*",
+    "commander": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "cli",
+    "claude-code",
+    "organized-ai",
+    "installer"
+  ]
+}

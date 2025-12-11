@@ -14,14 +14,20 @@ import { StackBuilderCanvas } from '@/components/stack-builder/StackBuilderCanva
 import { ComponentLibrary } from '@/components/stack-builder/ComponentLibrary';
 import { ComponentDetailsPanel } from '@/components/stack-builder/ComponentDetailsPanel';
 import { ExportModal } from '@/components/stack-builder/ExportModal';
+import { AIAnalysisModal } from '@/components/stack-builder/AIAnalysisModal';
 import { useStackBuilderStore } from '@/stores/stack-builder-store';
 
 function BuilderContent() {
   const { nodes, clearCanvas, stackName, setStackName } = useStackBuilderStore();
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
   const handleExport = () => {
     setIsExportModalOpen(true);
+  };
+
+  const handleAnalyze = () => {
+    setIsAIModalOpen(true);
   };
 
   const handleClearCanvas = () => {
@@ -65,6 +71,13 @@ function BuilderContent() {
               Clear Canvas
             </button>
             <button
+              onClick={handleAnalyze}
+              disabled={nodes.length === 0}
+              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Analyze with AI
+            </button>
+            <button
               onClick={handleExport}
               disabled={nodes.length === 0}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -85,6 +98,9 @@ function BuilderContent() {
 
       {/* Export Modal */}
       <ExportModal isOpen={isExportModalOpen} onClose={() => setIsExportModalOpen(false)} />
+
+      {/* AI Analysis Modal */}
+      <AIAnalysisModal isOpen={isAIModalOpen} onClose={() => setIsAIModalOpen(false)} />
     </div>
   );
 }

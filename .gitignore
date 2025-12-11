@@ -31,6 +31,7 @@ build/
 *.tgz
 *.tar.gz
 .next/
+tsconfig.tsbuildinfo
 
 # IDE files
 .vscode/
@@ -63,3 +64,4 @@ temp/
 .kiro/steering/byterover-rules.md
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
+.vercel
