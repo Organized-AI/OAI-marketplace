@@ -94,7 +94,9 @@ export class ConfigMerger {
 
     if (settings.mcps && typeof settings.mcps === 'object') {
       delete (settings.mcps as Record<string, unknown>)[name];
-      await this.mergeSettings(settings);
+      // Write directly instead of merging to ensure deletion takes effect
+      fs.mkdirSync(path.dirname(this.settingsPath), { recursive: true });
+      fs.writeFileSync(this.settingsPath, JSON.stringify(settings, null, 2));
     }
   }
 

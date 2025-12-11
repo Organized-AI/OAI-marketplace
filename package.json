@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "echo 'Add your test command here'",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "agent:setup": "node scripts/setup-agent.js",
     "docs:generate": "bash scripts/run-doc-agent.sh --mode=generate",
     "docs:update": "bash scripts/run-doc-agent.sh --mode=update",
@@ -41,6 +43,8 @@
   "devDependencies": {
     "@types/file-saver": "^2.0.7",
     "@types/react": "19.2.2",
-    "typescript": "5.9.3"
+    "@vitest/coverage-v8": "^4.0.15",
+    "typescript": "5.9.3",
+    "vitest": "^4.0.15"
   }
 }

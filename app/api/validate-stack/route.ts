@@ -21,13 +21,14 @@ interface StackPayload {
 interface ValidationRequest {
   stack: StackPayload;
   sessionId: string;
+  userId?: string; // Authenticated user ID (takes precedence over sessionId)
   userApiKey?: string;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: ValidationRequest = await request.json();
-    const { stack, sessionId, userApiKey } = body;
+    const { stack, sessionId, userId, userApiKey } = body;
 
     // Validate required fields
     if (!stack || !sessionId) {
@@ -37,6 +38,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Use userId for rate limiting if authenticated, otherwise use sessionId
+    const rateLimitKey = userId || sessionId;
+
     if (!stack.components || stack.components.length === 0) {
       return NextResponse.json(
         { error: 'Stack must have at least one component' },
@@ -45,19 +49,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit check for free tier (skip if user provides their own API key)
+    // Authenticated users get 10 validations/day, anonymous users get 3
+    const dailyLimit = userId ? 10 : DAILY_LIMIT;
+
     if (!userApiKey) {
       const { data: usageData } = await supabaseAdmin
         .from('validation_usage')
         .select('validations_count, id')
-        .eq('session_id', sessionId)
+        .eq('session_id', rateLimitKey)
         .gt('reset_at', new Date().toISOString())
         .single();
 
-      if (usageData && usageData.validations_count >= DAILY_LIMIT) {
+      if (usageData && usageData.validations_count >= dailyLimit) {
         return NextResponse.json(
           {
             error: 'Daily limit reached',
-            message: 'You\'ve used all 3 free validations today. Add your own Anthropic API key for unlimited validations.',
+            message: userId
+              ? 'You\'ve used all 10 free validations today. Add your own Anthropic API key for unlimited validations.'
+              : 'You\'ve used all 3 free validations today. Sign in for more or add your own API key.',
             remainingValidations: 0,
           },
           { status: 429 }
@@ -177,7 +186,7 @@ Valid pattern values: "sequential", "parallel", "hybrid"`;
       const { data: existing } = await supabaseAdmin
         .from('validation_usage')
         .select('*')
-        .eq('session_id', sessionId)
+        .eq('session_id', rateLimitKey)
         .gt('reset_at', new Date().toISOString())
         .single();
 
@@ -190,7 +199,7 @@ Valid pattern values: "sequential", "parallel", "hybrid"`;
         await supabaseAdmin
           .from('validation_usage')
           .insert({
-            session_id: sessionId,
+            session_id: rateLimitKey,
             validations_count: 1,
             ip_address: request.headers.get('x-forwarded-for')?.split(',')[0] || null,
           });
@@ -198,17 +207,17 @@ Valid pattern values: "sequential", "parallel", "hybrid"`;
     }
 
     // Calculate remaining validations
-    let remainingValidations = DAILY_LIMIT;
+    let remainingValidations = dailyLimit;
     if (!userApiKey) {
       const { data: currentUsage } = await supabaseAdmin
         .from('validation_usage')
         .select('validations_count')
-        .eq('session_id', sessionId)
+        .eq('session_id', rateLimitKey)
         .gt('reset_at', new Date().toISOString())
         .single();
 
       if (currentUsage) {
-        remainingValidations = Math.max(0, DAILY_LIMIT - currentUsage.validations_count);
+        remainingValidations = Math.max(0, dailyLimit - currentUsage.validations_count);
       }
     } else {
       remainingValidations = -1; // Unlimited
