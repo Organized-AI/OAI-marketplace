@@ -25,6 +25,7 @@ import type {
   StackBuilderEdge,
   Component,
   ComponentConfig,
+  ComponentType,
   ValidationWarning,
   DraftState,
 } from '@/lib/types/stack-builder';
@@ -188,22 +189,25 @@ export const useStackBuilderStore = create<StackBuilderState>()(
             return state;
           }
 
-          const isValid = isValidConnection(sourceNode.type, targetNode.type);
+          const sourceType = sourceNode.type as ComponentType;
+          const targetType = targetNode.type as ComponentType;
+          const isValid = isValidConnection(sourceType, targetType);
 
           if (!isValid) {
             // Show validation error
             const errorMessage = getConnectionValidationMessage(
-              sourceNode.type,
-              targetNode.type
+              sourceType,
+              targetType
             );
             console.error('Invalid connection:', errorMessage);
 
             // Add validation warning
             const newWarning: ValidationWarning = {
               id: `invalid-connection-${Date.now()}`,
-              type: 'error',
+              type: 'incompatible',
+              severity: 'error',
               message: errorMessage,
-              componentId: sourceNode.id,
+              nodeId: sourceNode.id,
             };
 
             return {

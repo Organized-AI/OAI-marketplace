@@ -17,6 +17,8 @@ interface ConnectionHelpPanelProps {
 
 const COMPONENT_TYPE_ICONS: Record<ComponentType, string> = {
   agent: '🤖',
+  subagent: '🤖',
+  skill: '🎯',
   mcp: '🔌',
   command: '⚡',
   hook: '🪝',
@@ -25,6 +27,8 @@ const COMPONENT_TYPE_ICONS: Record<ComponentType, string> = {
 
 const COMPONENT_TYPE_COLORS: Record<ComponentType, string> = {
   agent: 'bg-blue-50 border-blue-200 text-blue-900',
+  subagent: 'bg-blue-50 border-blue-200 text-blue-900',
+  skill: 'bg-indigo-50 border-indigo-200 text-indigo-900',
   mcp: 'bg-purple-50 border-purple-200 text-purple-900',
   command: 'bg-amber-50 border-amber-200 text-amber-900',
   hook: 'bg-green-50 border-green-200 text-green-900',
