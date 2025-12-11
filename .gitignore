@@ -31,6 +31,7 @@ build/
 *.tgz
 *.tar.gz
 .next/
+tsconfig.tsbuildinfo
 
 # IDE files
 .vscode/
