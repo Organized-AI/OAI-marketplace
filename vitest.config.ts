@@ -1,10 +1,11 @@
 import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+  plugins: [react()],
   test: {
     globals: true,
-    environment: 'node',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -13,14 +14,29 @@ export default defineConfig({
         'dist/**',
         '**/*.d.ts',
         '**/*.test.ts',
+        '**/*.test.tsx',
         '**/tests/**',
       ],
     },
-    include: ['packages/**/*.test.ts', 'packages/**/tests/**/*.test.ts'],
+    include: [
+      'packages/**/*.test.ts',
+      'packages/**/tests/**/*.test.ts',
+      '__tests__/**/*.test.ts',
+      '__tests__/**/*.test.tsx',
+    ],
     exclude: ['node_modules', 'dist', '.next'],
+    // Use jsdom for component tests, node for API tests
+    environmentMatchGlobs: [
+      ['__tests__/components/**', 'jsdom'],
+      ['__tests__/hooks/**', 'jsdom'],
+      ['**/*.test.tsx', 'jsdom'],
+    ],
+    environment: 'node',
+    setupFiles: ['__tests__/setup.ts'],
   },
   resolve: {
     alias: {
+      '@': path.resolve(__dirname),
       '@organized-ai/credentials': path.resolve(__dirname, 'packages/credentials/src'),
       '@organized-ai/phase-0': path.resolve(__dirname, 'packages/phase-0/src'),
       '@organized-ai/stack-builder': path.resolve(__dirname, 'packages/stack-builder/src'),
