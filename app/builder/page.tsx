@@ -5,9 +5,13 @@
  *
  * Main page for the visual Stack Builder interface.
  * Layout: ComponentLibrary (left) | Canvas (center) | DetailsPanel (right)
+ *
+ * URL Parameters:
+ * - ?importStack=<base64json> - Import a stack from URL (base64-encoded JSON array)
+ * - ?autoAnalyze=true - Auto-open AI analysis modal after import
  */
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { StackBuilderCanvas } from '@/components/stack-builder/StackBuilderCanvas';
@@ -16,11 +20,62 @@ import { ComponentDetailsPanel } from '@/components/stack-builder/ComponentDetai
 import { ExportModal } from '@/components/stack-builder/ExportModal';
 import { AIAnalysisModal } from '@/components/stack-builder/AIAnalysisModal';
 import { useStackBuilderStore } from '@/stores/stack-builder-store';
+import { useSearchParams } from 'next/navigation';
+import type { Component } from '@/lib/types/stack-builder';
 
 function BuilderContent() {
-  const { nodes, clearCanvas, stackName, setStackName } = useStackBuilderStore();
+  const { nodes, clearCanvas, stackName, setStackName, addComponent } = useStackBuilderStore();
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  // Handle URL parameters for importing stack from marketplace
+  useEffect(() => {
+    const importStack = searchParams.get('importStack');
+    const autoAnalyze = searchParams.get('autoAnalyze');
+
+    if (importStack) {
+      try {
+        // Decode base64 and parse JSON
+        const stackData = JSON.parse(atob(importStack));
+
+        // Import each component into the canvas
+        stackData.forEach((componentData: Record<string, unknown>, index: number) => {
+          const component: Component = {
+            id: componentData.id as string,
+            type: componentData.type as Component['type'],
+            name: componentData.name as string,
+            description: (componentData.description as string) || '',
+            icon: (componentData.icon as string) || '📦',
+            author: (componentData.author as string) || 'Imported',
+            downloads: (componentData.downloads as number) || 0,
+            rating: (componentData.rating as number) || 0,
+            tags: (componentData.tags as string[]) || [],
+            compatibleModels: (componentData.compatibleModels as string[]) || [],
+          };
+
+          // Calculate position in grid layout
+          const col = index % 3;
+          const row = Math.floor(index / 3);
+          const position = { x: 150 + col * 350, y: 100 + row * 250 };
+
+          addComponent(component, position);
+        });
+
+        // Auto-open analysis modal if requested
+        if (autoAnalyze === 'true') {
+          setTimeout(() => {
+            setIsAIModalOpen(true);
+          }, 500);
+        }
+
+        // Clean up URL parameters
+        window.history.replaceState({}, '', '/builder');
+      } catch (error) {
+        console.error('Failed to import stack:', error);
+      }
+    }
+  }, [searchParams, addComponent]);
 
   const handleExport = () => {
     setIsExportModalOpen(true);
@@ -105,10 +160,20 @@ function BuilderContent() {
   );
 }
 
+function BuilderLoading() {
+  return (
+    <div className="flex h-screen bg-slate-50 items-center justify-center">
+      <div className="text-slate-600">Loading Stack Builder...</div>
+    </div>
+  );
+}
+
 export default function BuilderPage() {
   return (
     <ReactFlowProvider>
-      <BuilderContent />
+      <Suspense fallback={<BuilderLoading />}>
+        <BuilderContent />
+      </Suspense>
     </ReactFlowProvider>
   );
 }
