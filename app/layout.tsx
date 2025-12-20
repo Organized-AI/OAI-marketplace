@@ -1,10 +1,36 @@
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
-const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
+// Use system fonts to avoid network dependency on Google Fonts
+const inter = localFont({
+  src: [
+    {
+      path: '../node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-sans',
+  fallback: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+  preload: false,
+  display: 'swap',
+});
+
+const jetbrainsMono = localFont({
+  src: [
+    {
+      path: '../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-mono',
+  fallback: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+  preload: false,
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Organized AI Marketplace - Claude Code Components',
