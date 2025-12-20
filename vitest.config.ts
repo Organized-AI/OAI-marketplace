@@ -25,13 +25,8 @@ export default defineConfig({
       '__tests__/**/*.test.tsx',
     ],
     exclude: ['node_modules', 'dist', '.next'],
-    // Use jsdom for component tests, node for API tests
-    environmentMatchGlobs: [
-      ['__tests__/components/**', 'jsdom'],
-      ['__tests__/hooks/**', 'jsdom'],
-      ['**/*.test.tsx', 'jsdom'],
-    ],
-    environment: 'node',
+    // Use jsdom for React component tests
+    environment: 'jsdom',
     setupFiles: ['__tests__/setup.ts'],
   },
   resolve: {
