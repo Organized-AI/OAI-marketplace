@@ -19,6 +19,8 @@ import { ComponentLibrary } from '@/components/stack-builder/ComponentLibrary';
 import { ComponentDetailsPanel } from '@/components/stack-builder/ComponentDetailsPanel';
 import { ExportModal } from '@/components/stack-builder/ExportModal';
 import { AIAnalysisModal } from '@/components/stack-builder/AIAnalysisModal';
+import { TemplatesModal } from '@/components/stack-builder/TemplatesModal';
+import { SaveTemplateModal } from '@/components/stack-builder/SaveTemplateModal';
 import { useStackBuilderStore } from '@/stores/stack-builder-store';
 import { useSearchParams } from 'next/navigation';
 import type { Component } from '@/lib/types/stack-builder';
@@ -27,6 +29,8 @@ function BuilderContent() {
   const { nodes, clearCanvas, stackName, setStackName, addComponent } = useStackBuilderStore();
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const searchParams = useSearchParams();
 
   // Handle URL parameters for importing stack from marketplace
@@ -91,6 +95,36 @@ function BuilderContent() {
     }
   };
 
+  // Handle selecting a template - loads components to canvas
+  const handleSelectTemplate = (templateComponents: any[]) => {
+    // Clear existing canvas
+    clearCanvas();
+
+    // Add each component from the template
+    templateComponents.forEach((comp, index) => {
+      const component: Component = {
+        id: comp.id,
+        type: comp.type,
+        name: comp.name,
+        description: comp.description || '',
+        icon: comp.icon || '📦',
+        author: comp.author || 'Template',
+        downloads: comp.downloads || 0,
+        rating: comp.rating || 0,
+        tags: comp.tags || [],
+        compatibleModels: comp.compatibleModels || [],
+      };
+
+      // Use template position if available, otherwise calculate grid position
+      const position = comp.position || {
+        x: 150 + (index % 3) * 350,
+        y: 100 + Math.floor(index / 3) * 250,
+      };
+
+      addComponent(component, position);
+    });
+  };
+
   return (
     <div className="flex h-screen bg-slate-50">
       {/* Left: Component Library */}
@@ -118,6 +152,21 @@ function BuilderContent() {
             />
 
             {/* Actions */}
+            <button
+              onClick={() => setIsTemplatesModalOpen(true)}
+              className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2"
+            >
+              <span>📋</span>
+              Templates
+            </button>
+            <button
+              onClick={() => setIsSaveTemplateModalOpen(true)}
+              disabled={nodes.length === 0}
+              className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <span>💾</span>
+              Save
+            </button>
             <button
               onClick={handleClearCanvas}
               disabled={nodes.length === 0}
@@ -156,6 +205,26 @@ function BuilderContent() {
 
       {/* AI Analysis Modal */}
       <AIAnalysisModal isOpen={isAIModalOpen} onClose={() => setIsAIModalOpen(false)} />
+
+      {/* Templates Modal */}
+      <TemplatesModal
+        isOpen={isTemplatesModalOpen}
+        onClose={() => setIsTemplatesModalOpen(false)}
+        onSelectTemplate={handleSelectTemplate}
+      />
+
+      {/* Save Template Modal */}
+      <SaveTemplateModal
+        isOpen={isSaveTemplateModalOpen}
+        onClose={() => setIsSaveTemplateModalOpen(false)}
+        components={nodes.map((node) => ({
+          id: node.data.id,
+          type: node.data.type,
+          name: node.data.name,
+          description: node.data.description,
+          position: node.position,
+        }))}
+      />
     </div>
   );
 }
