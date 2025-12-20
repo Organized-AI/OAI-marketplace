@@ -15,7 +15,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { StackBuilderCanvas } from '@/components/stack-builder/StackBuilderCanvas';
-import { ComponentLibrary } from '@/components/stack-builder/ComponentLibrary';
+import { ComponentBrowser } from '@/components/stack-builder/ComponentBrowser';
 import { ComponentDetailsPanel } from '@/components/stack-builder/ComponentDetailsPanel';
 import { ExportModal } from '@/components/stack-builder/ExportModal';
 import { AIAnalysisModal } from '@/components/stack-builder/AIAnalysisModal';
@@ -91,10 +91,19 @@ function BuilderContent() {
     }
   };
 
+  // Handle adding component from ComponentBrowser
+  const handleAddComponent = (component: Component) => {
+    // Calculate position based on existing nodes
+    const col = nodes.length % 3;
+    const row = Math.floor(nodes.length / 3);
+    const position = { x: 150 + col * 350, y: 100 + row * 250 };
+    addComponent(component, position);
+  };
+
   return (
-    <div className="flex h-screen bg-slate-50">
-      {/* Left: Component Library */}
-      <ComponentLibrary />
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+      {/* Left: Component Browser */}
+      <ComponentBrowser onAddComponent={handleAddComponent} />
 
       {/* Center: Canvas with Toolbar */}
       <div className="flex-1 flex flex-col">
