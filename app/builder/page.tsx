@@ -6,6 +6,11 @@
  * Main page for the visual Stack Builder interface.
  * Layout: ComponentLibrary (left) | Canvas (center) | DetailsPanel (right)
  *
+ * Authentication States:
+ * - State A: Not logged in - Shows sign in prompt
+ * - State B: Logged in, no API key - Shows API key prompt
+ * - State C: Fully authenticated - Shows full builder
+ *
  * URL Parameters:
  * - ?importStack=<base64json> - Import a stack from URL (base64-encoded JSON array)
  * - ?autoAnalyze=true - Auto-open AI analysis modal after import
@@ -19,15 +24,28 @@ import { ComponentLibrary } from '@/components/stack-builder/ComponentLibrary';
 import { ComponentDetailsPanel } from '@/components/stack-builder/ComponentDetailsPanel';
 import { ExportModal } from '@/components/stack-builder/ExportModal';
 import { AIAnalysisModal } from '@/components/stack-builder/AIAnalysisModal';
+import { AuthModal } from '@/components/AuthModal';
+import { AuthStatus } from '@/components/AuthStatus';
+import { ApiKeyModal } from '@/components/ApiKeyModal';
+import { useAuth } from '@/contexts/AuthContext';
+import { useApiKey } from '@/hooks/useApiKey';
 import { useStackBuilderStore } from '@/stores/stack-builder-store';
 import { useSearchParams } from 'next/navigation';
 import type { Component } from '@/lib/types/stack-builder';
 
 function BuilderContent() {
   const { nodes, clearCanvas, stackName, setStackName, addComponent } = useStackBuilderStore();
+  const { user, isLoading: authLoading } = useAuth();
+  const { apiKey, isLoading: apiKeyLoading } = useApiKey();
+
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const searchParams = useSearchParams();
+
+  // Combined loading state
+  const isLoading = authLoading || apiKeyLoading;
 
   // Handle URL parameters for importing stack from marketplace
   useEffect(() => {
@@ -91,6 +109,106 @@ function BuilderContent() {
     }
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-screen bg-slate-50 items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // State A: Not logged in - Show welcome message
+  if (!user) {
+    return (
+      <div className="flex h-screen bg-slate-50">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="max-w-md text-center p-8">
+            <div className="text-6xl mb-6">🛠️</div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">
+              Welcome to Stack Builder
+            </h1>
+            <p className="text-slate-600 mb-8">
+              Create custom Claude Code configurations visually.
+              Sign in to save your stacks, sync your API key across devices,
+              and access AI-powered analysis.
+            </p>
+
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="px-8 py-3 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Sign In to Continue
+            </button>
+
+            <div className="mt-6 grid grid-cols-3 gap-4 text-sm text-slate-500">
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-2xl">☁️</span>
+                <span>Cloud sync</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-2xl">🔐</span>
+                <span>Secure storage</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-2xl">🤖</span>
+                <span>AI analysis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      </div>
+    );
+  }
+
+  // State B: Logged in but no API key - Show API key prompt
+  if (!apiKey) {
+    return (
+      <div className="flex h-screen bg-slate-50">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="max-w-md text-center p-8">
+            <div className="text-6xl mb-6">🔑</div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-2">
+              Welcome, {user.email?.split('@')[0]}!
+            </h1>
+            <p className="text-slate-600 mb-8">
+              To use AI-powered stack analysis and validation,
+              connect your Anthropic API key. Your key is encrypted
+              and stored securely.
+            </p>
+
+            <button
+              onClick={() => setShowApiKeyModal(true)}
+              className="px-8 py-3 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Connect Your API Key
+            </button>
+
+            <div className="mt-6 flex justify-center">
+              <a
+                href="/settings"
+                className="text-sm text-slate-500 hover:text-slate-700 underline"
+              >
+                Go to Settings
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <ApiKeyModal
+          isOpen={showApiKeyModal}
+          onClose={() => setShowApiKeyModal(false)}
+        />
+      </div>
+    );
+  }
+
+  // State C: Fully authenticated - Show full builder
   return (
     <div className="flex h-screen bg-slate-50">
       {/* Left: Component Library */}
@@ -139,6 +257,11 @@ function BuilderContent() {
             >
               Export Stack
             </button>
+
+            {/* Auth Status */}
+            <div className="border-l border-slate-200 pl-3 ml-2">
+              <AuthStatus onSignInClick={() => setShowAuthModal(true)} />
+            </div>
           </div>
         </div>
 
@@ -151,11 +274,11 @@ function BuilderContent() {
       {/* Right: Component Details */}
       <ComponentDetailsPanel />
 
-      {/* Export Modal */}
+      {/* Modals */}
       <ExportModal isOpen={isExportModalOpen} onClose={() => setIsExportModalOpen(false)} />
-
-      {/* AI Analysis Modal */}
       <AIAnalysisModal isOpen={isAIModalOpen} onClose={() => setIsAIModalOpen(false)} />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <ApiKeyModal isOpen={showApiKeyModal} onClose={() => setShowApiKeyModal(false)} />
     </div>
   );
 }
