@@ -14,11 +14,13 @@
 import { useState, useEffect, Suspense } from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import Link from 'next/link';
 import { StackBuilderCanvas } from '@/components/stack-builder/StackBuilderCanvas';
 import { ComponentLibrary } from '@/components/stack-builder/ComponentLibrary';
 import { ComponentDetailsPanel } from '@/components/stack-builder/ComponentDetailsPanel';
 import { ExportModal } from '@/components/stack-builder/ExportModal';
 import { AIAnalysisModal } from '@/components/stack-builder/AIAnalysisModal';
+import { UserMenu } from '@/components/auth/UserMenu';
 import { useStackBuilderStore } from '@/stores/stack-builder-store';
 import { useSearchParams } from 'next/navigation';
 import type { Component } from '@/lib/types/stack-builder';
@@ -139,6 +141,12 @@ function BuilderContent() {
             >
               Export Stack
             </button>
+
+            {/* Divider */}
+            <div className="w-px h-8 bg-slate-200" />
+
+            {/* User Menu */}
+            <UserMenu />
           </div>
         </div>
 
